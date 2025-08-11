@@ -1,0 +1,23 @@
+# Render Blueprint para AYMARA API
+services:
+  - type: web
+    name: aymara-api
+    env: node
+    plan: starter
+    # Ajusta el plan según tus necesidades: free, starter, etc.
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: THROTTLE_TTL
+        value: 60
+      - key: THROTTLE_LIMIT
+        value: 30
+      - key: OPENAI_API_KEY
+        sync: false
+        # La clave de OpenAI debe configurarse manualmente en el dashboard de Render
+    autoDeploy: true

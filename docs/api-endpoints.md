@@ -1,0 +1,130 @@
+# Documentación de API AYMARA
+
+Este documento describe los endpoints disponibles en la API AYMARA, su uso y ejemplos de solicitudes y respuestas.
+
+## Base URL
+
+Todos los endpoints están prefijados con `/api/v1`.
+
+```
+http://localhost:3000/api/v1
+```
+
+## Autenticación
+
+La API no requiere autenticación, ya que es gestionada por otro backend.
+
+## Endpoints
+
+### Health Check
+
+Verifica el estado de la API.
+
+- **URL**: `/health`
+- **Método**: `GET`
+- **Autenticación**: No requerida
+
+#### Respuesta
+
+```json
+{
+  "status": "ok",
+  "timestamp": "2023-07-01T12:00:00.000Z"
+}
+```
+
+### Consulta a AYMARA
+
+Envía una consulta a la IA AYMARA sobre temas del sistema de salud colombiano.
+
+- **URL**: `/aymara/consulta`
+- **Método**: `GET`
+- **Autenticación**: No requerida
+
+#### Parámetros de consulta
+
+```
+/api/v1/aymara/consulta?pregunta=¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?&metadata={}
+```
+
+- `pregunta` (requerido): La consulta sobre el sistema de salud colombiano
+- `metadata` (opcional): Información adicional para contexto en formato JSON
+
+#### Respuesta exitosa
+
+```json
+{
+  "respuesta": "¡Qué más vale! Para radicar una factura a una EPS en Colombia necesitas tener estos documentos al día, compa: \n\n1. Factura electrónica que cumpla con requisitos de la DIAN.\n2. Detalle de cargos (discriminación de servicios).\n3. Copia de la autorización de servicios (si aplica).\n4. Soportes clínicos según el servicio prestado.\n5. RIPS (Registros Individuales de Prestación de Servicios) correctamente diligenciados.\n\nRecuerda que cada EPS puede tener requisitos adicionales específicos, así que es bueno verificar con ellos antes de radicar, ¿oíste?",
+  "meta": {
+    "tokens": 846
+  }
+}
+```
+
+#### Respuesta de error - Pregunta fuera de alcance
+
+```json
+{
+  "statusCode": 400,
+  "timestamp": "2023-07-01T12:00:00.000Z",
+  "path": "/api/v1/aymara/consulta",
+  "error": "Esa pregunta no hace parte de mi campo de conocimiento, compa.",
+  "requestId": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+
+
+#### Respuesta de error - Error del servidor
+
+```json
+{
+  "statusCode": 503,
+  "timestamp": "2023-07-01T12:00:00.000Z",
+  "path": "/api/v1/aymara/consulta",
+  "error": "El servicio está experimentando alta demanda. Por favor, intenta más tarde.",
+  "requestId": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+## Ejemplos de uso
+
+### Consulta con curl
+
+```bash
+curl -X GET "http://localhost:3000/api/v1/aymara/consulta?pregunta=¿Cuáles%20son%20los%20requisitos%20para%20radicar%20una%20factura%20a%20una%20EPS%20en%20Colombia?"
+```
+
+### Consulta con JavaScript (Fetch API)
+
+```javascript
+const pregunta = encodeURIComponent('¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?');
+const apiUrl = `http://localhost:3000/api/v1/aymara/consulta?pregunta=${pregunta}`;
+
+fetch(apiUrl)
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+### Consulta con Python (Requests)
+
+```python
+import requests
+from urllib.parse import quote
+
+pregunta = quote('¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?')
+api_url = f'http://localhost:3000/api/v1/aymara/consulta?pregunta={pregunta}'
+
+response = requests.get(api_url)
+print(response.json())
+```
+
+## Notas importantes
+
+1. La API está diseñada para responder preguntas específicas sobre el sistema de salud colombiano.
+2. Las preguntas fuera del ámbito de conocimiento de AYMARA serán rechazadas con un error 400.
+3. Cada solicitud incluye un `requestId` único que puede ser utilizado para seguimiento y depuración.
+4. La API implementa rate limiting para prevenir abusos (30 solicitudes por minuto).
+5. La autenticación es manejada por otro backend, por lo que no se requiere API key en esta implementación.
+6. En entornos de producción, asegúrate de usar HTTPS para proteger la información transmitida.
