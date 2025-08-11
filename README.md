@@ -145,4 +145,8 @@ src/
 
 ## Licencia
 
-Privada - Todos los derechos reservados
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](./LICENSE) para más detalles.
+
+## Contribuir
+
+Las contribuciones son bienvenidas. Por favor, lee [CONTRIBUTING.md](./CONTRIBUTING.md) para obtener detalles sobre nuestro código de conducta y el proceso para enviarnos pull requests.
