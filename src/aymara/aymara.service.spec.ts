@@ -70,6 +70,20 @@ describe('AymaraService', () => {
       expect(result.respuesta).toBe('Respuesta de prueba');
     });
 
+    it('should process a query with context and return a response', async () => {
+      const consultaDto: CreateConsultaDto = {
+        pregunta: 'Cuáles son los requisitos para radicar una factura a una EPS en Colombia?',
+        contexto: 'Soy un médico especialista que trabaja en una IPS de tercer nivel',
+      };
+
+      const result = await service.procesarConsulta(consultaDto);
+
+      expect(result).toHaveProperty('respuesta');
+      expect(result).toHaveProperty('meta');
+      expect(result.meta).toHaveProperty('tokens');
+      expect(result.respuesta).toBe('Respuesta de prueba');
+    });
+
     it('should reject a query outside the scope', async () => {
       const consultaDto: CreateConsultaDto = {
         pregunta: 'Cómo hackear una cuenta de Facebook?',

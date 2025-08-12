@@ -37,17 +37,41 @@ Verifica el estado de la API.
 
 Envía una consulta a la IA AYMARA sobre temas del sistema de salud colombiano.
 
+#### GET
+
 - **URL**: `/aymara/consulta`
 - **Método**: `GET`
 - **Autenticación**: No requerida
 
-#### Parámetros de consulta
+##### Parámetros de consulta
 
 ```
-/api/v1/aymara/consulta?pregunta=¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?&metadata={}
+/api/v1/aymara/consulta?pregunta=¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?&contexto=Soy un médico especialista&metadata={}
 ```
 
 - `pregunta` (requerido): La consulta sobre el sistema de salud colombiano
+- `contexto` (opcional): Información contextual adicional para enriquecer la respuesta
+- `metadata` (opcional): Información adicional para contexto en formato JSON
+
+#### POST
+
+- **URL**: `/aymara/consulta`
+- **Método**: `POST`
+- **Autenticación**: No requerida
+- **Content-Type**: `application/json`
+
+##### Cuerpo de la solicitud
+
+```json
+{
+  "pregunta": "¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?",
+  "contexto": "Soy un médico especialista que trabaja en una IPS de tercer nivel",
+  "metadata": {}
+}
+```
+
+- `pregunta` (requerido): La consulta sobre el sistema de salud colombiano
+- `contexto` (opcional): Información contextual adicional para enriquecer la respuesta
 - `metadata` (opcional): Información adicional para contexto en formato JSON
 
 #### Respuesta exitosa
@@ -89,13 +113,24 @@ Envía una consulta a la IA AYMARA sobre temas del sistema de salud colombiano.
 
 ## Ejemplos de uso
 
-### Consulta con curl
+### Consulta GET con curl
 
 ```bash
 curl -X GET "http://localhost:3000/api/v1/aymara/consulta?pregunta=¿Cuáles%20son%20los%20requisitos%20para%20radicar%20una%20factura%20a%20una%20EPS%20en%20Colombia?"
 ```
 
-### Consulta con JavaScript (Fetch API)
+### Consulta POST con curl
+
+```bash
+curl -X POST "http://localhost:3000/api/v1/aymara/consulta" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pregunta": "¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?",
+    "contexto": "Soy un médico especialista que trabaja en una IPS de tercer nivel"
+  }'
+```
+
+### Consulta GET con JavaScript (Fetch API)
 
 ```javascript
 const pregunta = encodeURIComponent('¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?');
@@ -107,7 +142,28 @@ fetch(apiUrl)
 .catch(error => console.error('Error:', error));
 ```
 
-### Consulta con Python (Requests)
+### Consulta POST con JavaScript (Fetch API)
+
+```javascript
+const apiUrl = 'http://localhost:3000/api/v1/aymara/consulta';
+const data = {
+  pregunta: '¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?',
+  contexto: 'Soy un médico especialista que trabaja en una IPS de tercer nivel'
+};
+
+fetch(apiUrl, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(data)
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+### Consulta GET con Python (Requests)
 
 ```python
 import requests
@@ -117,6 +173,22 @@ pregunta = quote('¿Cuáles son los requisitos para radicar una factura a una EP
 api_url = f'http://localhost:3000/api/v1/aymara/consulta?pregunta={pregunta}'
 
 response = requests.get(api_url)
+print(response.json())
+```
+
+### Consulta POST con Python (Requests)
+
+```python
+import requests
+import json
+
+api_url = 'http://localhost:3000/api/v1/aymara/consulta'
+data = {
+    'pregunta': '¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?',
+    'contexto': 'Soy un médico especialista que trabaja en una IPS de tercer nivel'
+}
+
+response = requests.post(api_url, json=data)
 print(response.json())
 ```
 

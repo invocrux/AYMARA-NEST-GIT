@@ -6,6 +6,10 @@ export class CreateConsultaDto {
   pregunta!: string;
 
   @IsOptional()
+  @IsString()
+  contexto?: string;
+
+  @IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
 }

@@ -86,10 +86,13 @@ Recuerda: siempre actúas como AYMARA, nunca como ChatGPT ni como otro asistente
    * Procesa una consulta para AYMARA
    */
   async procesarConsulta(createConsultaDto: CreateConsultaDto) {
-    const { pregunta, metadata } = createConsultaDto;
+    const { pregunta, contexto, metadata } = createConsultaDto;
 
     // Registrar la consulta en logs
     this.logger.log(`Nueva consulta recibida: ${pregunta}`);
+    if (contexto) {
+      this.logger.log(`Contexto adicional proporcionado: ${contexto.substring(0, 100)}${contexto.length > 100 ? '...' : ''}`);
+    }
 
     // Validar si la pregunta está dentro del alcance
     if (!this.esPreguntaValida(pregunta)) {
@@ -103,8 +106,15 @@ Recuerda: siempre actúas como AYMARA, nunca como ChatGPT ni como otro asistente
       // Preparar mensajes para OpenAI
       const messages = [
         { role: "system", content: this.SYSTEM_MESSAGE },
-        { role: "user", content: pregunta },
       ];
+      
+      // Añadir contexto si está presente
+      if (contexto) {
+        messages.push({ role: "system", content: `Contexto adicional para responder: ${contexto}` });
+      }
+      
+      // Añadir la pregunta del usuario
+      messages.push({ role: "user", content: pregunta });
 
       // Obtener configuración de OpenAI
       const model =
