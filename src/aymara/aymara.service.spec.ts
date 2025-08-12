@@ -6,16 +6,18 @@ import { CreateConsultaDto } from './dto/create-consulta.dto';
 
 // Mock de OpenAI
 jest.mock('openai', () => {
-  return jest.fn().mockImplementation(() => ({
-    chat: {
-      completions: {
-        create: jest.fn().mockResolvedValue({
-          choices: [{ message: { content: 'Respuesta de prueba' } }],
-          usage: { total_tokens: 100 },
-        }),
+  return {
+    default: jest.fn().mockImplementation(() => ({
+      chat: {
+        completions: {
+          create: jest.fn().mockResolvedValue({
+            choices: [{ message: { content: 'Respuesta de prueba' } }],
+            usage: { total_tokens: 100 },
+          }),
+        },
       },
-    },
-  }));
+    })),
+  };
 });
 
 describe('AymaraService', () => {
@@ -81,9 +83,8 @@ describe('AymaraService', () => {
         pregunta: 'Cuáles son los requisitos para radicar una factura a una EPS en Colombia?',
       };
 
-      // Mock para simular un error de la API
-      const openaiMock = require('openai');
-      openaiMock.mockImplementationOnce(() => ({
+      // Crear un nuevo servicio con un mock que lance error
+      const mockOpenAI = {
         chat: {
           completions: {
             create: jest.fn().mockRejectedValue({
@@ -92,7 +93,10 @@ describe('AymaraService', () => {
             }),
           },
         },
-      }));
+      };
+      
+      // Reemplazar la instancia de OpenAI en el servicio
+      (service as any).openai = mockOpenAI;
 
       await expect(service.procesarConsulta(consultaDto)).rejects.toThrow(ServiceUnavailableException);
     });
@@ -100,7 +104,7 @@ describe('AymaraService', () => {
 
   // Test privado usando cualquier para acceder al método privado
   describe('esPreguntaValida', () => {
-    it('should accept valid health-related questions', () => {
+    it('should accept questions with proper structure', () => {
       const result = (service as any).esPreguntaValida('¿Cómo funciona el proceso de facturación en el sistema de salud colombiano?');
       expect(result).toBe(true);
     });
@@ -110,9 +114,19 @@ describe('AymaraService', () => {
       expect(result).toBe(false);
     });
 
-    it('should use fallback for ambiguous questions in Spanish', () => {
-      const result = (service as any).esPreguntaValida('¿Qué debo hacer si tengo una duda médica?');
+    it('should accept questions in Spanish without health-specific keywords', () => {
+      const result = (service as any).esPreguntaValida('¿Qué debo hacer si tengo una duda?');
       expect(result).toBe(true);
+    });
+    
+    it('should accept questions with Spanish question words', () => {
+      const result = (service as any).esPreguntaValida('Cuándo se implementó la ley 100?');
+      expect(result).toBe(true);
+    });
+    
+    it('should reject extremely short inputs', () => {
+      const result = (service as any).esPreguntaValida('hi');
+      expect(result).toBe(false);
     });
   });
 });

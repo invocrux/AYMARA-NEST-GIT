@@ -15,52 +15,7 @@ export class AymaraService {
   private readonly SYSTEM_MESSAGE: string;
 
   // Listas para filtrado de preguntas
-  private readonly PALABRAS_CLAVE_PERMITIDAS: string[] = [
-    "salud",
-    "colombia",
-    "eps",
-    "ips",
-    "rips",
-    "facturación",
-    "glosa",
-    "auditoría",
-    "pqrd",
-    "tarifario",
-    "médico",
-    "clínico",
-    "administrativo",
-    "normativa",
-    "ley",
-    "decreto",
-    "resolución",
-    "circular",
-    "sistema",
-    "paciente",
-    "usuario",
-    "afiliado",
-    "prestador",
-    "servicio",
-    "atención",
-    "procedimiento",
-    "diagnóstico",
-    "medicamento",
-    "fármaco",
-    "droga",
-    "medicina",
-    "tratamiento",
-    "receta",
-    "prescripción",
-    "farmacia",
-    "farmacéutico",
-    "pos",
-    "pbs",
-    "plan obligatorio",
-    "beneficios",
-    "dosis",
-    "genérico",
-    "comercial",
-    "invima",
-  ];
+  // Ya no usamos lista de palabras permitidas, confiamos en el modelo para determinar si la pregunta está en su dominio
 
   private readonly PALABRAS_CLAVE_PROHIBIDAS: string[] = [
     "política",
@@ -200,6 +155,7 @@ Recuerda: siempre actúas como AYMARA, nunca como ChatGPT ni como otro asistente
 
   /**
    * Valida si una pregunta está dentro del alcance de AYMARA
+   * Solo filtra palabras prohibidas y verifica coherencia básica
    */
   private esPreguntaValida(pregunta: string): boolean {
     const preguntaNormalizada = pregunta.toLowerCase();
@@ -213,20 +169,15 @@ Recuerda: siempre actúas como AYMARA, nunca como ChatGPT ni como otro asistente
       return false;
     }
 
-    // Verificar palabras permitidas
-    const contienePalabraPermitida = this.PALABRAS_CLAVE_PERMITIDAS.some(
-      (palabra) => preguntaNormalizada.includes(palabra.toLowerCase())
-    );
+    // Verificar coherencia básica: longitud adecuada y que esté en español
+    const esEspanol = /[áéíóúñ¿¡]/i.test(preguntaNormalizada) || 
+                     /\b(que|como|cual|donde|quien|por|para|cuando)\b/i.test(preguntaNormalizada);
+    const longitudAdecuada = pregunta.length >= 3 && pregunta.length < 1000;
+    const tieneEstructura = pregunta.includes("?") || 
+                           /\b(qu[eé]|c[oó]mo|cu[aá]l|d[oó]nde|qui[eé]n|cu[aá]ndo|cu[aá]nto|por qu[eé])\b/i.test(preguntaNormalizada);
 
-    if (contienePalabraPermitida) {
-      return true;
-    }
-
-    // Fallback: verificar longitud y que esté en español
-    // Una heurística simple: si la pregunta es corta y contiene caracteres españoles
-    const esEspanol = /[áéíóúñ¿¡]/i.test(preguntaNormalizada);
-    const longitudAdecuada = pregunta.length > 10 && pregunta.length < 500;
-
-    return esEspanol && longitudAdecuada;
+    // Si la pregunta es coherente (español + longitud adecuada + estructura de pregunta), la aceptamos
+    // Confiamos en el modelo para determinar si está dentro de su dominio
+    return longitudAdecuada && (esEspanol || tieneEstructura);
   }
 }
