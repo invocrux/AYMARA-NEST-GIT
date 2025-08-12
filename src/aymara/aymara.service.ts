@@ -43,6 +43,23 @@ export class AymaraService {
     "atención",
     "procedimiento",
     "diagnóstico",
+    "medicamento",
+    "fármaco",
+    "droga",
+    "medicina",
+    "tratamiento",
+    "receta",
+    "prescripción",
+    "farmacia",
+    "farmacéutico",
+    "pos",
+    "pbs",
+    "plan obligatorio",
+    "beneficios",
+    "dosis",
+    "genérico",
+    "comercial",
+    "invima",
   ];
 
   private readonly PALABRAS_CLAVE_PROHIBIDAS: string[] = [
