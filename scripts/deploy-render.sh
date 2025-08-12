@@ -7,7 +7,8 @@ echo "🚀 Iniciando despliegue a Render..."
 # Verificar que render-cli esté instalado
 if ! command -v render &> /dev/null; then
     echo "❌ render-cli no está instalado. Instalando..."
-    npm install -g @render/cli
+    echo "Instalando render-cli usando Homebrew..."
+    brew update && brew install render
 fi
 
 # Verificar que el archivo render.yaml existe
@@ -23,15 +24,22 @@ if [ $? -ne 0 ]; then
     render login
 fi
 
-# Desplegar usando el blueprint
-echo "🔄 Desplegando a Render usando blueprint..."
-render blueprint apply
+echo "ℹ️ NOTA IMPORTANTE: La nueva versión del CLI de Render no soporta el comando 'blueprint apply'."
+echo "ℹ️ Para desplegar tu aplicación, tienes dos opciones:"
+echo ""
+echo "1️⃣ Despliegue manual a través del Dashboard de Render:"
+echo "   - Inicia sesión en https://dashboard.render.com"
+echo "   - Haz clic en 'New +' y selecciona 'Blueprint'"
+echo "   - Conecta tu repositorio y selecciona la rama que contiene el archivo render.yaml"
+echo "   - Revisa la configuración y haz clic en 'Apply'"
+echo ""
+echo "2️⃣ Despliegue usando el Dashboard de Render para servicios individuales:"
+echo "   - Inicia sesión en https://dashboard.render.com"
+echo "   - Haz clic en 'New +' y selecciona 'Web Service'"
+echo "   - Sigue las instrucciones en docs/despliegue-render.md"
+echo ""
+echo "✅ El archivo render.yaml está listo para ser utilizado en cualquiera de estas opciones"
+echo "📊 Una vez completado el despliegue, tu API estará disponible en la URL proporcionada por Render"
+echo "🔍 Para más detalles, consulta la documentación en docs/despliegue-render.md"
 
-if [ $? -eq 0 ]; then
-    echo "✅ Despliegue iniciado correctamente"
-    echo "📊 Puedes verificar el estado del despliegue en el dashboard de Render"
-    echo "🌐 Una vez completado, tu API estará disponible en: https://aymara-api.onrender.com"
-else
-    echo "❌ Error al iniciar el despliegue"
-    exit 1
-fi
+exit 0
