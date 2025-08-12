@@ -17,8 +17,8 @@ services:
         value: 60
       - key: THROTTLE_LIMIT
         value: 30
-      - key: CORS_ORIGINS
-        value: http://localhost:8100,http://localhost:3000,https://tu-frontend.com,https://aymara-api.onrender.com
+      # CORS está configurado para permitir cualquier origen en main.ts
+      # La variable CORS_ORIGINS ya no es necesaria
       - key: OPENAI_API_KEY
         sync: false
         # La clave de OpenAI debe configurarse manualmente en el dashboard de Render

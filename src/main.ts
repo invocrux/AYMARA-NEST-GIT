@@ -18,12 +18,11 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
   
-  // CORS configurado para orígenes permitidos
-  const corsOrigins = configService.get<string>('CORS_ORIGINS')?.split(',') || [];
+  // CORS configurado para permitir cualquier origen
   app.enableCors({
-    origin: corsOrigins,
-    methods: ['GET', 'POST'],
-    credentials: true,
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    credentials: false,
   });
   
   // Validación global de DTOs

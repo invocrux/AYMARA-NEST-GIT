@@ -121,13 +121,11 @@ Para diagnosticar problemas:
 - **Error de construcción**: Verifica que los scripts en `package.json` sean correctos
 - **Error en tiempo de ejecución**: Revisa las variables de entorno y los logs
 - **Problemas de rendimiento**: Considera actualizar a un plan con más recursos
-- **Errores CORS**: Si recibes errores del tipo "Access to XMLHttpRequest has been blocked by CORS policy", verifica:
-  1. Que la variable de entorno `CORS_ORIGINS` incluya todos los dominios desde los que accederás a la API
-  2. Que los dominios estén correctamente formateados (incluyendo protocolo http/https y puerto si es necesario)
-  3. Que no haya espacios entre las URLs en la lista separada por comas
-  4. Incluye también la URL de la propia API (ej. `https://aymara-api.onrender.com`) en la lista de orígenes permitidos
-  5. Después de actualizar la configuración CORS, espera a que se complete el despliegue en Render (puede tomar unos minutos)
-  6. Si los problemas persisten, verifica en los logs de la aplicación que la configuración CORS se está aplicando correctamente
+- **Errores CORS**: Con la configuración actual, no deberías experimentar errores CORS ya que la API permite solicitudes desde cualquier origen. Sin embargo, si aún experimentas problemas:
+  1. Verifica que la configuración en `main.ts` esté correctamente aplicada con `origin: '*'`
+  2. Asegúrate de que el despliegue más reciente se haya completado en Render (puede tomar unos minutos)
+  3. Revisa los logs de la aplicación para verificar que la configuración CORS se está aplicando correctamente
+  4. Si necesitas implementar restricciones de CORS en el futuro, modifica la configuración en `main.ts` y vuelve a desplegar la aplicación
 
 ## Mantenimiento
 
@@ -149,10 +147,10 @@ Para revertir a una versión anterior:
 ## Consideraciones de Seguridad
 
 - Render proporciona HTTPS por defecto
-- **Configuración CORS**: La API ya implementa CORS para restringir el acceso desde dominios no autorizados:
-  - Configura `CORS_ORIGINS` con los dominios exactos que necesitan acceso
-  - Para entornos de producción, evita usar comodines (`*`) y especifica dominios concretos
-  - Recuerda actualizar esta configuración cuando cambies dominios de frontend
+- **Configuración CORS**: La API ahora implementa CORS para permitir acceso desde cualquier origen:
+  - La configuración actual permite solicitudes desde cualquier dominio (`origin: '*'`)
+  - No es necesario configurar la variable `CORS_ORIGINS` ya que se ha eliminado esta restricción
+  - Esta configuración facilita la integración con cualquier frontend, pero considera implementar restricciones más específicas en entornos de alta seguridad
 - Nunca expongas claves API o secretos en el código fuente
 - La API implementa rate limiting para proteger contra ataques de fuerza bruta
 

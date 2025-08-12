@@ -44,7 +44,7 @@ Edita el archivo `.env` con tus propias credenciales:
 OPENAI_API_KEY=tu_api_key_de_openai
 DEFAULT_MODEL=gpt-4-turbo
 DEFAULT_TEMPERATURE=0.3
-CORS_ORIGINS=http://localhost:3000,https://tu-frontend.com
+# CORS está configurado para permitir cualquier origen en main.ts
 PORT=3000
 NODE_ENV=development
 THROTTLE_TTL=60
