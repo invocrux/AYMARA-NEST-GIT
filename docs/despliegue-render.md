@@ -125,6 +125,9 @@ Para diagnosticar problemas:
   1. Que la variable de entorno `CORS_ORIGINS` incluya todos los dominios desde los que accederás a la API
   2. Que los dominios estén correctamente formateados (incluyendo protocolo http/https y puerto si es necesario)
   3. Que no haya espacios entre las URLs en la lista separada por comas
+  4. Incluye también la URL de la propia API (ej. `https://aymara-api.onrender.com`) en la lista de orígenes permitidos
+  5. Después de actualizar la configuración CORS, espera a que se complete el despliegue en Render (puede tomar unos minutos)
+  6. Si los problemas persisten, verifica en los logs de la aplicación que la configuración CORS se está aplicando correctamente
 
 ## Mantenimiento
 
