@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import * as compression from 'compression';
+import * as session from 'express-session';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -18,11 +19,25 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
   
+  // Configuración de sesión
+  app.use(
+    session({
+      secret: configService.get<string>('SESSION_SECRET') || 'aymara-session-secret',
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        maxAge: 3600000, // 1 hora
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+      }
+    }),
+  );
+  
   // CORS configurado para permitir cualquier origen
   app.enableCors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    credentials: false,
+    credentials: true, // Habilitado para permitir cookies de sesión
   });
   
   // Validación global de DTOs
@@ -31,6 +46,11 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+      // Aplicar transformación antes de la validación
+      validateCustomDecorators: true,
     }),
   );
   

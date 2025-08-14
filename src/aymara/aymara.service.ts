@@ -91,7 +91,9 @@ Recuerda: siempre actúas como AYMARA, nunca como ChatGPT ni como otro asistente
     // Registrar la consulta en logs
     this.logger.log(`Nueva consulta recibida: ${pregunta}`);
     if (contexto) {
-      this.logger.log(`Contexto adicional proporcionado: ${contexto.substring(0, 100)}${contexto.length > 100 ? '...' : ''}`);
+      this.logger.log(
+        `Contexto adicional proporcionado: ${contexto.substring(0, 100)}${contexto.length > 100 ? "..." : ""}`
+      );
     }
 
     // Validar si la pregunta está dentro del alcance
@@ -104,15 +106,18 @@ Recuerda: siempre actúas como AYMARA, nunca como ChatGPT ni como otro asistente
 
     try {
       // Preparar mensajes para OpenAI
-      const messages = [
-        { role: "system", content: this.SYSTEM_MESSAGE },
-      ];
-      
+      const messages = [{ role: "system", content: this.SYSTEM_MESSAGE }];
+
       // Añadir contexto si está presente
+      this.logger.log(`Contexto adicional proporcionado: ${contexto}`);
+
       if (contexto) {
-        messages.push({ role: "system", content: `Contexto adicional para responder: ${contexto}` });
+        messages.push({
+          role: "system",
+          content: `Contexto adicional para responder: ${contexto}`,
+        });
       }
-      
+
       // Añadir la pregunta del usuario
       messages.push({ role: "user", content: pregunta });
 
@@ -181,21 +186,37 @@ Recuerda: siempre actúas como AYMARA, nunca como ChatGPT ni como otro asistente
     }
 
     // Verificar coherencia básica: longitud adecuada y que esté en español
-    const esEspanol = /[áéíóúñ¿¡]/i.test(preguntaNormalizada) || 
-                     /\b(que|como|cual|donde|quien|por|para|cuando)\b/i.test(preguntaNormalizada);
+    const esEspanol =
+      /[áéíóúñ¿¡]/i.test(preguntaNormalizada) ||
+      /\b(que|como|cual|donde|quien|por|para|cuando)\b/i.test(
+        preguntaNormalizada
+      );
     const longitudAdecuada = pregunta.length >= 3 && pregunta.length < 1000;
-    
+
     // Verificar si es una pregunta o una solicitud relacionada con el ámbito médico
-    const tieneEstructuraPregunta = pregunta.includes("?") || 
-                           /\b(qu[eé]|c[oó]mo|cu[aá]l|d[oó]nde|qui[eé]n|cu[aá]ndo|cu[aá]nto|por qu[eé])\b/i.test(preguntaNormalizada);
-    
+    const tieneEstructuraPregunta =
+      pregunta.includes("?") ||
+      /\b(qu[eé]|c[oó]mo|cu[aá]l|d[oó]nde|qui[eé]n|cu[aá]ndo|cu[aá]nto|por qu[eé])\b/i.test(
+        preguntaNormalizada
+      );
+
     // Verificar si es una solicitud relacionada con el ámbito médico-administrativo
-    const esSolicitudMedica = /\b(medic[oa]|paciente|resumen|historia|clínic[oa]|salud|eps|ips|hospital|consulta|tratamiento|diagnóstico|factura|glosa|rips|pqrd|auditoría)\b/i.test(preguntaNormalizada);
-    
+    const esSolicitudMedica =
+      /\b(medic[oa]|paciente|resumen|historia|clínic[oa]|salud|eps|ips|hospital|consulta|tratamiento|diagnóstico|factura|glosa|rips|pqrd|auditoría)\b/i.test(
+        preguntaNormalizada
+      );
+
     // Verificar si es una solicitud explícita de información
-    const esSolicitudExplicita = /\b(necesito|requiero|solicito|dame|proporciona|explica|ayuda|información)\b/i.test(preguntaNormalizada);
+    const esSolicitudExplicita =
+      /\b(necesito|requiero|solicito|dame|proporciona|explica|ayuda|información)\b/i.test(
+        preguntaNormalizada
+      );
 
     // Si la entrada es coherente (español + longitud adecuada) y es una pregunta o solicitud médica, la aceptamos
-    return longitudAdecuada && (esEspanol && (tieneEstructuraPregunta || esSolicitudMedica || esSolicitudExplicita));
+    return (
+      longitudAdecuada &&
+      esEspanol &&
+      (tieneEstructuraPregunta || esSolicitudMedica || esSolicitudExplicita)
+    );
   }
 }
