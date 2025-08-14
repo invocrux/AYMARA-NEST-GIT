@@ -31,6 +31,10 @@ export class AymaraController {
     @Req() request: Request
   ) {
     const contextoSesion = this.contextService.getContext(request);
+    console.log('Contexto actual en sesión:', contextoSesion);
+    console.log('Session ID:', request.session?.id);
+    console.log('Headers:', JSON.stringify(request.headers));
+    
     if (contextoSesion) {
       createConsultaDto.contexto = contextoSesion;
     }
