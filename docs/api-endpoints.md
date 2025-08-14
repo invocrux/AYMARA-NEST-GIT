@@ -53,26 +53,14 @@ Envía una consulta a la IA AYMARA sobre temas del sistema de salud colombiano.
 - `contexto` (opcional): Información contextual adicional para enriquecer la respuesta
 - `metadata` (opcional): Información adicional para contexto en formato JSON
 
-#### POST
+#### POST (OBSOLETO)
 
-- **URL**: `/aymara/consulta`
-- **Método**: `POST`
-- **Autenticación**: No requerida
-- **Content-Type**: `application/json`
+> **NOTA**: El método POST para consultas ya no está disponible. Por favor, utiliza el método GET para consultas y los endpoints específicos para gestionar el contexto.
 
-##### Cuerpo de la solicitud
-
-```json
-{
-  "pregunta": "¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?",
-  "contexto": "Soy un médico especialista que trabaja en una IPS de tercer nivel",
-  "metadata": {}
-}
-```
-
-- `pregunta` (requerido): La consulta sobre el sistema de salud colombiano
-- `contexto` (opcional): Información contextual adicional para enriquecer la respuesta
-- `metadata` (opcional): Información adicional para contexto en formato JSON
+En su lugar, utiliza los siguientes endpoints:
+- `GET /aymara/consulta` - Para realizar consultas
+- `POST /aymara/contexto` - Para establecer el contexto
+- `POST /aymara/limpiar-contexto` - Para limpiar el contexto
 
 #### Respuesta exitosa
 
@@ -119,13 +107,13 @@ Envía una consulta a la IA AYMARA sobre temas del sistema de salud colombiano.
 curl -X GET "http://localhost:3000/api/v1/aymara/consulta?pregunta=¿Cuáles%20son%20los%20requisitos%20para%20radicar%20una%20factura%20a%20una%20EPS%20en%20Colombia?"
 ```
 
-### Consulta POST con curl
+### Establecer contexto con curl
 
 ```bash
-curl -X POST "http://localhost:3000/api/v1/aymara/consulta" \
+curl -X POST "http://localhost:3000/api/v1/aymara/contexto" \
   -H "Content-Type: application/json" \
+  -c cookies.txt \
   -d '{
-    "pregunta": "¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?",
     "contexto": "Soy un médico especialista que trabaja en una IPS de tercer nivel"
   }'
 ```
@@ -142,12 +130,11 @@ fetch(apiUrl)
 .catch(error => console.error('Error:', error));
 ```
 
-### Consulta POST con JavaScript (Fetch API)
+### Establecer contexto con JavaScript (Fetch API)
 
 ```javascript
-const apiUrl = 'http://localhost:3000/api/v1/aymara/consulta';
+const apiUrl = 'http://localhost:3000/api/v1/aymara/contexto';
 const data = {
-  pregunta: '¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?',
   contexto: 'Soy un médico especialista que trabaja en una IPS de tercer nivel'
 };
 
@@ -156,6 +143,7 @@ fetch(apiUrl, {
   headers: {
     'Content-Type': 'application/json'
   },
+  credentials: 'include', // Importante para mantener la sesión
   body: JSON.stringify(data)
 })
 .then(response => response.json())
@@ -176,19 +164,73 @@ response = requests.get(api_url)
 print(response.json())
 ```
 
-### Consulta POST con Python (Requests)
+### Establecer contexto con Python (Requests)
 
 ```python
 import requests
 import json
 
-api_url = 'http://localhost:3000/api/v1/aymara/consulta'
+api_url = 'http://localhost:3000/api/v1/aymara/contexto'
 data = {
-    'pregunta': '¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?',
     'contexto': 'Soy un médico especialista que trabaja en una IPS de tercer nivel'
 }
 
-response = requests.post(api_url, json=data)
+session = requests.Session()  # Crear una sesión para mantener las cookies
+response = session.post(api_url, json=data)
+print(response.json())
+```
+
+### Consultar con contexto almacenado (JavaScript)
+
+```javascript
+const pregunta = encodeURIComponent('¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?');
+const apiUrl = `http://localhost:3000/api/v1/aymara/consulta?pregunta=${pregunta}`;
+
+fetch(apiUrl, {
+  credentials: 'include' // Importante para usar la sesión
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+### Consultar con contexto almacenado (Python)
+
+```python
+import requests
+from urllib.parse import quote
+
+pregunta = quote('¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?')
+api_url = f'http://localhost:3000/api/v1/aymara/consulta?pregunta={pregunta}'
+
+# Usar la misma sesión que se usó para establecer el contexto
+response = session.get(api_url)
+print(response.json())
+```
+
+### Limpiar contexto almacenado (JavaScript)
+
+```javascript
+const apiUrl = 'http://localhost:3000/api/v1/aymara/limpiar-contexto';
+
+fetch(apiUrl, {
+  method: 'POST',
+  credentials: 'include' // Importante para usar la sesión
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+### Limpiar contexto almacenado (Python)
+
+```python
+import requests
+
+api_url = 'http://localhost:3000/api/v1/aymara/limpiar-contexto'
+
+# Usar la misma sesión que se usó para establecer el contexto
+response = session.post(api_url)
 print(response.json())
 ```
 
@@ -200,3 +242,8 @@ print(response.json())
 4. La API implementa rate limiting para prevenir abusos (30 solicitudes por minuto).
 5. La autenticación es manejada por otro backend, por lo que no se requiere API key en esta implementación.
 6. En entornos de producción, asegúrate de usar HTTPS para proteger la información transmitida.
+7. **Manejo de sesiones**: La API utiliza sesiones para almacenar el contexto entre peticiones. Es importante incluir `credentials: 'include'` en las peticiones fetch o usar un objeto `Session` en Python para mantener las cookies de sesión.
+8. **Flujo recomendado**: 
+   - Establecer el contexto con `POST /aymara/contexto`
+   - Realizar múltiples consultas con `GET /aymara/consulta` (el contexto se aplicará automáticamente)
+   - Limpiar el contexto cuando sea necesario con `POST /aymara/limpiar-contexto`
