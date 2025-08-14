@@ -165,7 +165,7 @@ Recuerda: siempre actúas como AYMARA, nunca como ChatGPT ni como otro asistente
   }
 
   /**
-   * Valida si una pregunta está dentro del alcance de AYMARA
+   * Valida si una pregunta o solicitud está dentro del alcance de AYMARA
    * Solo filtra palabras prohibidas y verifica coherencia básica
    */
   private esPreguntaValida(pregunta: string): boolean {
@@ -184,11 +184,18 @@ Recuerda: siempre actúas como AYMARA, nunca como ChatGPT ni como otro asistente
     const esEspanol = /[áéíóúñ¿¡]/i.test(preguntaNormalizada) || 
                      /\b(que|como|cual|donde|quien|por|para|cuando)\b/i.test(preguntaNormalizada);
     const longitudAdecuada = pregunta.length >= 3 && pregunta.length < 1000;
-    const tieneEstructura = pregunta.includes("?") || 
+    
+    // Verificar si es una pregunta o una solicitud relacionada con el ámbito médico
+    const tieneEstructuraPregunta = pregunta.includes("?") || 
                            /\b(qu[eé]|c[oó]mo|cu[aá]l|d[oó]nde|qui[eé]n|cu[aá]ndo|cu[aá]nto|por qu[eé])\b/i.test(preguntaNormalizada);
+    
+    // Verificar si es una solicitud relacionada con el ámbito médico-administrativo
+    const esSolicitudMedica = /\b(medic[oa]|paciente|resumen|historia|clínic[oa]|salud|eps|ips|hospital|consulta|tratamiento|diagnóstico|factura|glosa|rips|pqrd|auditoría)\b/i.test(preguntaNormalizada);
+    
+    // Verificar si es una solicitud explícita de información
+    const esSolicitudExplicita = /\b(necesito|requiero|solicito|dame|proporciona|explica|ayuda|información)\b/i.test(preguntaNormalizada);
 
-    // Si la pregunta es coherente (español + longitud adecuada + estructura de pregunta), la aceptamos
-    // Confiamos en el modelo para determinar si está dentro de su dominio
-    return longitudAdecuada && (esEspanol || tieneEstructura);
+    // Si la entrada es coherente (español + longitud adecuada) y es una pregunta o solicitud médica, la aceptamos
+    return longitudAdecuada && (esEspanol && (tieneEstructuraPregunta || esSolicitudMedica || esSolicitudExplicita));
   }
 }
