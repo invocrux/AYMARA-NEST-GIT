@@ -84,12 +84,17 @@ describe('AymaraService', () => {
       expect(result.respuesta).toBe('Respuesta de prueba');
     });
 
-    it('should reject a query outside the scope', async () => {
+    it('should accept any query after removing restrictions', async () => {
       const consultaDto: CreateConsultaDto = {
         pregunta: 'Cómo hackear una cuenta de Facebook?',
       };
 
-      await expect(service.procesarConsulta(consultaDto)).rejects.toThrow(BadRequestException);
+      // Ahora todas las consultas son aceptadas
+      const result = await service.procesarConsulta(consultaDto);
+      expect(result).toHaveProperty('respuesta');
+      expect(result).toHaveProperty('meta');
+      expect(result.meta).toHaveProperty('tokens');
+      expect(result.respuesta).toBe('Respuesta de prueba');
     });
 
     it('should handle OpenAI API errors gracefully', async () => {
@@ -117,30 +122,7 @@ describe('AymaraService', () => {
   });
 
   // Test privado usando cualquier para acceder al método privado
-  describe('esPreguntaValida', () => {
-    it('should accept questions with proper structure', () => {
-      const result = (service as any).esPreguntaValida('¿Cómo funciona el proceso de facturación en el sistema de salud colombiano?');
-      expect(result).toBe(true);
-    });
-
-    it('should reject questions with prohibited keywords', () => {
-      const result = (service as any).esPreguntaValida('¿Cómo puedo hackear el sistema de una EPS?');
-      expect(result).toBe(false);
-    });
-
-    it('should accept questions in Spanish without health-specific keywords', () => {
-      const result = (service as any).esPreguntaValida('¿Qué debo hacer si tengo una duda?');
-      expect(result).toBe(true);
-    });
-    
-    it('should accept questions with Spanish question words', () => {
-      const result = (service as any).esPreguntaValida('Cuándo se implementó la ley 100?');
-      expect(result).toBe(true);
-    });
-    
-    it('should reject extremely short inputs', () => {
-      const result = (service as any).esPreguntaValida('hi');
-      expect(result).toBe(false);
-    });
-  });
+  // Las pruebas de validación de preguntas han sido eliminadas ya que
+  // el método esPreguntaValida() ha sido removido y ya no se realizan
+  // validaciones temáticas en las consultas
 });
