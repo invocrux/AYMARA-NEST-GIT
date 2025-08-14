@@ -78,7 +78,7 @@ Envía una consulta a la IA AYMARA sobre temas del sistema de salud colombiano.
 
 ```json
 {
-  "respuesta": "¡Qué más vale! Para radicar una factura a una EPS en Colombia necesitas tener estos documentos al día, compa: \n\n1. Factura electrónica que cumpla con requisitos de la DIAN.\n2. Detalle de cargos (discriminación de servicios).\n3. Copia de la autorización de servicios (si aplica).\n4. Soportes clínicos según el servicio prestado.\n5. RIPS (Registros Individuales de Prestación de Servicios) correctamente diligenciados.\n\nRecuerda que cada EPS puede tener requisitos adicionales específicos, así que es bueno verificar con ellos antes de radicar, ¿oíste?",
+  "respuesta": "Para radicar una factura a una EPS en Colombia necesita tener estos documentos al día: \n\n1. Factura electrónica que cumpla con requisitos de la DIAN.\n2. Detalle de cargos (discriminación de servicios).\n3. Copia de la autorización de servicios (si aplica).\n4. Soportes clínicos según el servicio prestado.\n5. RIPS (Registros Individuales de Prestación de Servicios) correctamente diligenciados.\n\nRecuerde que cada EPS puede tener requisitos adicionales específicos, por lo que es recomendable verificar con ellos antes de radicar.",
   "meta": {
     "tokens": 846
   }
@@ -92,7 +92,7 @@ Envía una consulta a la IA AYMARA sobre temas del sistema de salud colombiano.
   "statusCode": 400,
   "timestamp": "2023-07-01T12:00:00.000Z",
   "path": "/api/v1/aymara/consulta",
-  "error": "Esa pregunta no hace parte de mi campo de conocimiento, compa.",
+  "error": "Esta consulta no forma parte de mi campo de conocimiento.",
   "requestId": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```

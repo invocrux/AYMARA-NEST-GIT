@@ -78,7 +78,7 @@ curl -X GET "http://localhost:3000/api/v1/aymara/consulta?pregunta=%C2%BFCu%C3%A
 
 ```json
 {
-  "respuesta": "¡Qué más vale! Para radicar una factura a una EPS en Colombia necesitas tener estos documentos al día, compa: \n\n1. Factura electrónica que cumpla con requisitos de la DIAN.\n2. Detalle de cargos (discriminación de servicios).\n3. Copia de la autorización de servicios (si aplica).\n4. Soportes clínicos: historia clínica, notas de enfermería, etc.\n5. RIPS (Registros Individuales de Prestación de Servicios) correctamente diligenciados.\n6. Evidencia de verificación de derechos del usuario.\n\nRecuerda que según la Resolución 3047 de 2008 y sus modificaciones, tienes 6 meses para radicar desde la fecha de prestación del servicio. ¡Pilas con eso!",
+  "respuesta": "Para radicar una factura a una EPS en Colombia necesita tener estos documentos al día: \n\n1. Factura electrónica que cumpla con requisitos de la DIAN.\n2. Detalle de cargos (discriminación de servicios).\n3. Copia de la autorización de servicios (si aplica).\n4. Soportes clínicos: historia clínica, notas de enfermería, etc.\n5. RIPS (Registros Individuales de Prestación de Servicios) correctamente diligenciados.\n6. Evidencia de verificación de derechos del usuario.\n\nRecuerde que según la Resolución 3047 de 2008 y sus modificaciones, tiene 6 meses para radicar desde la fecha de prestación del servicio.",
   "meta": {
     "tokens": 846
   }
