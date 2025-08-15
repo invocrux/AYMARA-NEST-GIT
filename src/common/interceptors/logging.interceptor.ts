@@ -30,9 +30,18 @@ export class LoggingInterceptor implements NestInterceptor {
     if (body && Object.keys(body).length > 0) {
       // Aquí podrías implementar lógica para ocultar datos sensibles
       const sanitizedBody = { ...body };
-      this.logger.debug(
-        `[${requestId}] Cuerpo de la solicitud: ${JSON.stringify(sanitizedBody)}`,
-      );
+      
+      // Excluir el contexto del logging para evitar duplicación
+      if (sanitizedBody.contexto) {
+        delete sanitizedBody.contexto;
+      }
+      
+      // Solo loggear si hay otros campos además del contexto
+      if (Object.keys(sanitizedBody).length > 0) {
+        this.logger.debug(
+          `[${requestId}] Cuerpo de la solicitud: ${JSON.stringify(sanitizedBody)}`,
+        );
+      }
     }
     
     return next.handle().pipe(

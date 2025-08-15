@@ -34,14 +34,52 @@ curl -X GET "http://localhost:3000/api/v1/aymara/consulta?pregunta=¿Cuáles%20s
 > **NOTA**: Este método ya no está disponible. Por favor, utiliza el método de establecer contexto y luego realizar consultas GET.
 ```
 
-#### Establecer contexto para consultas posteriores
+#### Establecer contexto médico para consultas posteriores
 
 ```bash
 curl -X POST "http://localhost:3000/api/v1/aymara/contexto" \
   -H "Content-Type: application/json" \
-  -c cookies.txt \
   -d '{
-    "contexto": "Soy un médico especialista que trabaja en una IPS de tercer nivel"
+    "contextoMedico": {
+      "paciente": {
+        "nombre": "Juan Pérez",
+        "identificacion": "12345678",
+        "edad": 45,
+        "sexo": "masculino"
+      },
+      "idEmpleado": 2723
+    }
+  }'
+```
+
+#### Realizar consulta con contexto previamente guardado
+
+```bash
+curl -X POST "http://localhost:3000/api/v1/aymara/contexto" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pregunta": "¿Cuáles son los síntomas de la diabetes?",
+    "idEmpleado": 2723
+  }'
+```
+
+#### Establecer contexto y realizar consulta en una sola petición
+
+```bash
+curl -X POST "http://localhost:3000/api/v1/aymara/contexto" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contextoMedico": {
+      "paciente": {
+        "nombre": "María García",
+        "identificacion": "87654321",
+        "edad": 35,
+        "sexo": "femenino"
+      },
+      "idEmpleado": 2724
+    },
+    "pregunta": "¿Cuáles son los síntomas del asma?",
+    "idEmpleado": 2724
   }'
 ```
 
@@ -90,24 +128,22 @@ async function consultarAymaraGet() {
 consultarAymaraGet();
 ```
 
-#### Usando Fetch API (POST con contexto)
+#### Establecer contexto médico para consultas posteriores
 
 ```javascript
-// NOTA: El método POST para consultas con contexto ya no está disponible.
-// Por favor, utiliza el método de establecer contexto y luego realizar consultas GET.
-// Ejemplo:
-// 1. Primero establece el contexto con establecerContexto()
-// 2. Luego realiza consultas con consultarConContextoAlmacenado()
-```
-
-#### Establecer contexto para consultas posteriores
-
-```javascript
-// Establecer contexto para consultas posteriores
-async function establecerContexto() {
+// Establecer contexto médico para consultas posteriores
+async function establecerContextoMedico() {
   const apiUrl = 'http://localhost:3000/api/v1/aymara/contexto';
   const data = {
-    contexto: 'Soy un médico especialista que trabaja en una IPS de tercer nivel'
+    contextoMedico: {
+      paciente: {
+        nombre: 'Juan Pérez',
+        identificacion: '12345678',
+        edad: 45,
+        sexo: 'masculino'
+      },
+      idEmpleado: 2723
+    }
   };
   
   try {
@@ -116,7 +152,6 @@ async function establecerContexto() {
       headers: {
         'Content-Type': 'application/json'
       },
-      credentials: 'include', // Importante para mantener la sesión
       body: JSON.stringify(data)
     });
     
@@ -134,7 +169,93 @@ async function establecerContexto() {
   }
 }
 
-establecerContexto();
+establecerContextoMedico();
+```
+
+#### Realizar consulta con contexto previamente guardado
+
+```javascript
+// Realizar consulta con contexto previamente guardado
+async function consultarConContextoGuardado() {
+  const apiUrl = 'http://localhost:3000/api/v1/aymara/contexto';
+  const data = {
+    pregunta: '¿Cuáles son los síntomas de la diabetes?',
+    idEmpleado: 2723
+  };
+  
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error:', errorData);
+      return;
+    }
+    
+    const responseData = await response.json();
+    console.log('Respuesta:', responseData.respuesta);
+    console.log('Tokens utilizados:', responseData.meta.tokens);
+    return responseData;
+  } catch (error) {
+    console.error('Error de conexión:', error);
+  }
+}
+
+consultarConContextoGuardado();
+```
+
+#### Establecer contexto y realizar consulta en una sola petición
+
+```javascript
+// Establecer contexto y realizar consulta en una sola petición
+async function establecerContextoYConsultar() {
+  const apiUrl = 'http://localhost:3000/api/v1/aymara/contexto';
+  const data = {
+    contextoMedico: {
+      paciente: {
+        nombre: 'María García',
+        identificacion: '87654321',
+        edad: 35,
+        sexo: 'femenino'
+      },
+      idEmpleado: 2724
+    },
+    pregunta: '¿Cuáles son los síntomas del asma?',
+    idEmpleado: 2724
+  };
+  
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error:', errorData);
+      return;
+    }
+    
+    const responseData = await response.json();
+    console.log('Mensaje:', responseData.message);
+    console.log('Respuesta:', responseData.respuesta);
+    console.log('Tokens utilizados:', responseData.meta.tokens);
+    return responseData;
+  } catch (error) {
+    console.error('Error de conexión:', error);
+  }
+}
+
+establecerContextoYConsultar();
 ```
 
 #### Consultar usando el contexto almacenado
@@ -221,35 +342,28 @@ async function consultarAymaraAxiosGet() {
 consultarAymaraAxiosGet();
 ```
 
-#### Usando Axios (POST con contexto - OBSOLETO)
+#### Establecer contexto médico para consultas posteriores (Axios)
 
 ```javascript
-// NOTA: El método POST para consultas con contexto ya no está disponible.
-// Por favor, utiliza el método de establecer contexto y luego realizar consultas GET con Axios.
-// Ejemplo:
-// 1. Primero establece el contexto con establecerContextoAxios()
-// 2. Luego realiza consultas con consultarConContextoAlmacenadoAxios()
-```
-
-#### Establecer contexto para consultas posteriores (Axios)
-
-```javascript
-// Establecer contexto para consultas posteriores usando Axios
+// Establecer contexto médico para consultas posteriores usando Axios
 const axios = require('axios');
 
-// Crear una instancia de Axios que mantenga las cookies
-const axiosInstance = axios.create({
-  withCredentials: true // Importante para mantener la sesión
-});
-
-async function establecerContextoAxios() {
+async function establecerContextoMedicoAxios() {
   const apiUrl = 'http://localhost:3000/api/v1/aymara/contexto';
   const data = {
-    contexto: 'Soy un médico especialista que trabaja en una IPS de tercer nivel'
+    contextoMedico: {
+      paciente: {
+        nombre: 'Juan Pérez',
+        identificacion: '12345678',
+        edad: 45,
+        sexo: 'masculino'
+      },
+      idEmpleado: 2723
+    }
   };
   
   try {
-    const response = await axiosInstance.post(apiUrl, data);
+    const response = await axios.post(apiUrl, data);
     console.log('Resultado:', response.data.message);
     return response.data;
   } catch (error) {
@@ -257,26 +371,24 @@ async function establecerContextoAxios() {
   }
 }
 
-establecerContextoAxios();
+establecerContextoMedicoAxios();
 ```
 
-#### Consultar usando el contexto almacenado (Axios)
+#### Realizar consulta con contexto previamente guardado (Axios)
 
 ```javascript
-// Consultar usando el contexto almacenado con Axios
+// Realizar consulta con contexto previamente guardado usando Axios
 const axios = require('axios');
 
-// Usar la misma instancia de Axios que mantiene las cookies
-const axiosInstance = axios.create({
-  withCredentials: true // Importante para usar la sesión
-});
-
-async function consultarConContextoAlmacenadoAxios() {
-  const pregunta = encodeURIComponent('¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?');
-  const apiUrl = `http://localhost:3000/api/v1/aymara/consulta?pregunta=${pregunta}`;
+async function consultarConContextoGuardadoAxios() {
+  const apiUrl = 'http://localhost:3000/api/v1/aymara/contexto';
+  const data = {
+    pregunta: '¿Cuáles son los síntomas de la diabetes?',
+    idEmpleado: 2723
+  };
   
   try {
-    const response = await axiosInstance.get(apiUrl);
+    const response = await axios.post(apiUrl, data);
     console.log('Respuesta:', response.data.respuesta);
     console.log('Tokens utilizados:', response.data.meta.tokens);
     return response.data;
@@ -285,8 +397,46 @@ async function consultarConContextoAlmacenadoAxios() {
   }
 }
 
-consultarConContextoAlmacenadoAxios();
+consultarConContextoGuardadoAxios();
 ```
+
+#### Establecer contexto y realizar consulta en una sola petición (Axios)
+
+```javascript
+// Establecer contexto y realizar consulta en una sola petición usando Axios
+const axios = require('axios');
+
+async function establecerContextoYConsultarAxios() {
+  const apiUrl = 'http://localhost:3000/api/v1/aymara/contexto';
+  const data = {
+    contextoMedico: {
+      paciente: {
+        nombre: 'María García',
+        identificacion: '87654321',
+        edad: 35,
+        sexo: 'femenino'
+      },
+      idEmpleado: 2724
+    },
+    pregunta: '¿Cuáles son los síntomas del asma?',
+    idEmpleado: 2724
+  };
+  
+  try {
+    const response = await axios.post(apiUrl, data);
+    console.log('Mensaje:', response.data.message);
+    console.log('Respuesta:', response.data.respuesta);
+    console.log('Tokens utilizados:', response.data.meta.tokens);
+    return response.data;
+  } catch (error) {
+    console.error('Error:', error.response ? error.response.data : error.message);
+  }
+}
+
+establecerContextoYConsultarAxios();
+```
+
+
 
 #### Limpiar el contexto almacenado (Axios)
 
@@ -343,33 +493,28 @@ def consultar_aymara_get():
 consultar_aymara_get()
 ```
 
-#### Usando Requests (POST con contexto - OBSOLETO)
+#### Establecer contexto médico para consultas posteriores
 
 ```python
-# NOTA: El método POST para consultas con contexto ya no está disponible.
-# Por favor, utiliza el método de establecer contexto y luego realizar consultas GET con Requests.
-# Ejemplo:
-# 1. Primero establece el contexto con establecer_contexto()
-# 2. Luego realiza consultas con consultar_con_contexto_almacenado()
-```
-
-#### Establecer contexto para consultas posteriores
-
-```python
-# Establecer contexto para consultas posteriores
+# Establecer contexto médico para consultas posteriores
 import requests
 
-# Crear una sesión para mantener las cookies
-sesion = requests.Session()
-
-def establecer_contexto():
+def establecer_contexto_medico():
     api_url = 'http://localhost:3000/api/v1/aymara/contexto'
     data = {
-        'contexto': 'Soy un médico especialista que trabaja en una IPS de tercer nivel'
+        'contextoMedico': {
+            'paciente': {
+                'nombre': 'Juan Pérez',
+                'identificacion': '12345678',
+                'edad': 45,
+                'sexo': 'masculino'
+            },
+            'idEmpleado': 2723
+        }
     }
     
     try:
-        response = sesion.post(api_url, json=data)
+        response = requests.post(api_url, json=data)
         response.raise_for_status()  # Lanza excepción si hay error HTTP
         
         data = response.json()
@@ -380,25 +525,24 @@ def establecer_contexto():
     except ValueError as e:
         print('Error al procesar la respuesta JSON:', e)
 
-establacer_contexto()
+establacer_contexto_medico()
 ```
 
-#### Consultar usando el contexto almacenado
+#### Realizar consulta con contexto previamente guardado
 
 ```python
-# Consultar usando el contexto almacenado
+# Realizar consulta con contexto previamente guardado
 import requests
-import urllib.parse
 
-# Usar la misma sesión que mantiene las cookies
-sesion = requests.Session()
-
-def consultar_con_contexto_almacenado():
-    pregunta = urllib.parse.quote('¿Cuáles son los requisitos para radicar una factura a una EPS en Colombia?')
-    api_url = f'http://localhost:3000/api/v1/aymara/consulta?pregunta={pregunta}'
+def consultar_con_contexto_guardado():
+    api_url = 'http://localhost:3000/api/v1/aymara/contexto'
+    data = {
+        'pregunta': '¿Cuáles son los síntomas de la diabetes?',
+        'idEmpleado': 2723
+    }
     
     try:
-        response = sesion.get(api_url)
+        response = requests.post(api_url, json=data)
         response.raise_for_status()  # Lanza excepción si hay error HTTP
         
         data = response.json()
@@ -410,8 +554,49 @@ def consultar_con_contexto_almacenado():
     except ValueError as e:
         print('Error al procesar la respuesta JSON:', e)
 
-consultar_con_contexto_almacenado()
+consultar_con_contexto_guardado()
 ```
+
+#### Establecer contexto y realizar consulta en una sola petición
+
+```python
+# Establecer contexto y realizar consulta en una sola petición
+import requests
+
+def establecer_contexto_y_consultar():
+    api_url = 'http://localhost:3000/api/v1/aymara/contexto'
+    data = {
+        'contextoMedico': {
+            'paciente': {
+                'nombre': 'María García',
+                'identificacion': '87654321',
+                'edad': 35,
+                'sexo': 'femenino'
+            },
+            'idEmpleado': 2724
+        },
+        'pregunta': '¿Cuáles son los síntomas del asma?',
+        'idEmpleado': 2724
+    }
+    
+    try:
+        response = requests.post(api_url, json=data)
+        response.raise_for_status()  # Lanza excepción si hay error HTTP
+        
+        data = response.json()
+        print('Mensaje:', data['message'])
+        print('Respuesta:', data['respuesta'])
+        print('Tokens utilizados:', data['meta']['tokens'])
+        return data
+    except requests.exceptions.RequestException as e:
+        print('Error de conexión:', e)
+    except ValueError as e:
+        print('Error al procesar la respuesta JSON:', e)
+
+establacer_contexto_y_consultar()
+```
+
+
 
 #### Limpiar el contexto almacenado
 
