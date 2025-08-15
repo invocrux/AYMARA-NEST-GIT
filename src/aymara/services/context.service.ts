@@ -1,42 +1,66 @@
-import { Injectable } from '@nestjs/common';
-import { Request } from 'express';
+import { Injectable } from "@nestjs/common";
+import { Request } from "express";
+import { ContextoMedico } from "../dto/set-context.dto";
+import { ContextoMedicoBuilder } from "../builders/contexto-medico.builder";
 
 @Injectable()
 export class ContextService {
+  // Mapa para almacenar contextos por idEmpleado
+  private contextMap: Map<number, string> = new Map<number, string>();
   /**
-   * Guarda el contexto en la sesión del usuario
-   * @param request Objeto de solicitud Express
-   * @param contexto Contexto a guardar
+   * Crea un contexto médico utilizando el patrón Builder
+   * @param contextoMedico Datos del contexto médico (todos opcionales)
+   * @returns Builder para construir el contexto
    */
-  saveContext(request: Request, contexto: string): void {
-    if (!request.session) {
-      throw new Error('La sesión no está disponible');
-    }
-    
-    // Guardar el contexto en la sesión usando indexación
-    (request.session as any)['contexto'] = contexto;
+  crearContexto(contextoMedico?: Partial<ContextoMedico>): string {
+    const builder = new ContextoMedicoBuilder();
+
+    if (!contextoMedico) return builder.buildAsText();
+
+    if (contextoMedico.vista) builder.setVista(contextoMedico.vista);
+    if (contextoMedico.paciente) builder.setPaciente(contextoMedico.paciente);
+    if (contextoMedico.diagnosticos)
+      builder.setDiagnosticos(contextoMedico.diagnosticos);
+    if (contextoMedico.fechaEvolucion)
+      builder.setFechaEvolucion(contextoMedico.fechaEvolucion);
+    if (contextoMedico.medicoAtencion)
+      builder.setMedicoAtencion(contextoMedico.medicoAtencion);
+    if (contextoMedico.examenFisico)
+      builder.setExamenFisico(contextoMedico.examenFisico);
+    if (contextoMedico.idEmpleado !== undefined)
+      builder.setIdEmpleado(contextoMedico.idEmpleado);
+
+    return builder.buildAsText();
   }
 
   /**
-   * Obtiene el contexto almacenado en la sesión del usuario
-   * @param request Objeto de solicitud Express
-   * @returns El contexto almacenado o null si no hay contexto
+   * Guarda el contexto médico en el mapa usando el idEmpleado como clave
+   * @param contextoMedico Datos del contexto médico (todos opcionales)
+   * @returns El ID del empleado utilizado como clave
    */
-  getContext(request: Request): string | null {
-    if (!request.session || !(request.session as any)['contexto']) {
-      return null;
-    }
-    
-    return (request.session as any)['contexto'];
+  guardarContexto(contextoMedico?: Partial<ContextoMedico>): number {
+    // Crear el contexto en formato texto usando el método existente
+    const contextoTexto = this.crearContexto(contextoMedico);
+
+    // Determinar el ID del empleado a usar como clave
+    const idEmpleado =
+      contextoMedico?.idEmpleado !== undefined
+        ? contextoMedico.idEmpleado
+        : 2723;
+
+    // Guardar en el mapa
+    this.contextMap.set(idEmpleado, contextoTexto);
+
+    return idEmpleado;
   }
 
   /**
-   * Elimina el contexto almacenado en la sesión del usuario
-   * @param request Objeto de solicitud Express
+   * Obtiene el contexto médico almacenado para un ID de empleado específico
+   * @param idEmpleado ID del empleado cuyo contexto se desea obtener
+   * @returns El contexto médico en formato texto o null si no existe
    */
-  clearContext(request: Request): void {
-    if (request.session && (request.session as any)['contexto']) {
-      delete (request.session as any)['contexto'];
-    }
+  obtenerContextoPorEmpleado(idEmpleado: number): string | null {
+    const contexto = this.contextMap.get(idEmpleado);
+    return contexto !== undefined ? contexto : null;
   }
 }
